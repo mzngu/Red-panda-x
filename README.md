@@ -4,10 +4,10 @@ Modern chat interface to get a first opinion and advice based on your symptoms, 
 
 ### ✨ Features
 
--> 📄 Prescription scanning via interface
--> 💬 Conversational ChatBot
--> 📑 Conversation history with search and sort function
--> 🚨 Allergy management and medication compatibility
+-> 📄 Prescription scanning via interface\
+-> 💬 Conversational ChatBot\
+-> 📑 Conversation history with search and sort function\
+-> 🚨 Allergy management and medication compatibility\
 -> 🗺️ Map integration to locate the nearest pharmacy
 
 ### 🛠️ Tech Stack
