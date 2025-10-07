@@ -1,0 +1,51 @@
+---
+import Footer from '../../components/Footer.astro';
+import '../../styles/ordonnance.css';
+import '../../styles/components/footer.css';
+---
+
+<!doctype html>
+<html lang="fr">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Ordonnance</title>
+  </head>
+  <body>
+    <main>
+      <div class="carte">
+        <div class="carte-header">
+          <h3>Ce traitement est valable jusqu'au 12/12/2023</h3>
+          <span>Aucune Allergie détectée</span>
+          <div class="carte-middle">
+            <h4>Results</h4>
+            <div class="medication-toggle">
+              <div class="toggle-switch"></div>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="carte-footer">
+        <div class="img-carte-footer">
+          <img src="/images/dna.png" alt="Ordonnance">
+        </div>
+        <div class="ordonnance-details">
+          <h3>Medicament 1</h3>
+          <span>1/jour</span>
+          </div>      
+      </div>
+    </main>
+    <Footer />
+     <script>
+      document.addEventListener('DOMContentLoaded', function() {
+        // Code pour gérer les toggles
+        document.querySelectorAll('.toggle-switch').forEach(toggle => {
+          toggle.addEventListener('click', function(event) {
+            (event.currentTarget as HTMLElement).classList.toggle('active');
+          });
+        });
+      });
+    </script>
+  </body>
+</html>
+

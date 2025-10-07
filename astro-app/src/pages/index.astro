@@ -1,0 +1,70 @@
+---
+import '../styles/global.css';
+import '../styles/index.css';
+import Button from '../components/Button.astro';
+---
+
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <meta name="generator" content={Astro.generator} />
+  <title>Don't Panic - Accueil</title>
+</head>
+
+<body class="page-accueil">
+  <div class="container-accueil">
+      <div class="main">
+
+        <!-- Mascotte -->
+        <div class="mascotte-wrap">
+          <div class="mascotte-outer">
+            <div class="mascotte-inner">
+              <img 
+                src="/sorrel/pandaPawsUp.png" 
+                alt="Mascotte Don't Panic" 
+                class="mascotte-img"
+                onerror="this.style.display='none'; this.nextElementSibling.classList.remove('hidden')"
+              />
+              <div class="text-5xl hidden">🦊</div>
+            </div>
+          </div>
+        </div>
+
+
+
+
+        <!-- Titre principal -->
+        <div class="header">
+        <h1 class="header-title">
+          DON'T 
+          <span class="shake-hover">PANIC</span>
+        </h1>
+        <p class="header-subtitle">
+          Bienvenue sur votre plateforme d'aide medicale
+        </p>
+        </div>
+
+
+        <!-- Boutons d'authentification -->
+        <div class="actions">
+          <a href="/inscription/inscription" class="flex-1">
+            <button class="btn btn-primary">S'INSCRIRE</button>
+          </a>
+          <a href="/connexion/connexion" class="flex-1">
+            <button class="btn btn-secondary">SE CONNECTER</button>
+          </a>
+        </div>
+
+      </div>
+
+
+    <!-- Footer -->
+    <div class="footer">
+      <p class="footer-text">© 2025 Don't Panic - Votre assistant médical personnel</p>
+    </div>
+
+  </div>
+</body>
+</html>

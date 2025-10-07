@@ -1,0 +1,28 @@
+---
+import { IoHome, IoChatbubbleEllipses, IoAddCircleOutline, IoDocumentText, IoPerson, IoCalendar } from "react-icons/io5";
+const currentPath = Astro.url.pathname;
+const isActive = (path) => (currentPath === path ? 'active' : '');
+---
+
+<footer data-dp-footer>
+  <nav class="bottom-nav">
+    <a href="/home/home" class={`nav-btn ${isActive('/home/home')}`}>
+      <IoHome />
+    </a>
+    <a href="/conversation/conversation" class={`nav-btn ${isActive('/conversation/conversation')}`}>
+      <IoChatbubbleEllipses />
+    </a>
+    <a href="/chatbot/chatbot" class={`nav-btn add-btn ${isActive('/chatbot/chatbot')}`}>
+      <IoAddCircleOutline />
+    </a>
+    <a href="/calendar/calendar" class={`nav-btn ${isActive('/calendar/calendar')}`}>
+      <IoCalendar />
+    </a>
+    <a href="/profile/profile" class={`nav-btn ${isActive('/profile/profile')}`}>
+      <IoPerson />
+    </a>
+    <a href="/ordonnance/ordonnance" class={`nav-btn ${isActive('/ordonnance/ordonnance')}`}>
+      <IoDocumentText />
+    </a>
+  </nav>
+</footer>

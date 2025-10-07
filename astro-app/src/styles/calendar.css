@@ -1,0 +1,238 @@
+:root{
+  /* Couleurs */
+  --bg1:#34d399;
+  --bg2:#0d9488;
+  --glass: rgba(255,255,255,0.15);
+  --glass-strong: rgba(255,255,255,0.25);
+  --text:#063a36;
+  --grid:#ffffff2a;
+  --today:#fff;
+  --today-bg:#22c55e33;
+  --accent:#14b8a6;
+
+  /* Tailles de grille (desktop par défaut) */
+  --sidebar-w: 70px;   /* colonne des segments: Matin/Midi… */
+  --hdr-h: 56px;       /* hauteur de l'en-tête (jours) */
+  --row-h: 80px;       /* hauteur d'une ligne (Matin/Midi/Après-midi/Soir) */
+}
+
+/* Breakpoints – on ajuste les variables, le JS lira ces valeurs */
+@media (max-width: 900px){
+  :root{ --sidebar-w: 48px; --hdr-h: 52px; --row-h: 68px; }
+}
+@media (max-width: 640px){
+  :root{ --sidebar-w: 40px; --hdr-h: 48px; --row-h: 56px; }
+}
+
+/* ---------- Reset léger ---------- */
+*{ box-sizing:border-box; margin:0; padding:0; }
+
+/* ---------- Page ---------- */
+body{
+  min-height:100vh;
+  background: linear-gradient(135deg, var(--bg1), var(--bg2));
+  color:#fff;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+  overflow-x:hidden;
+}
+
+/* ---------- Conteneur général ---------- */
+.container{
+  min-height:100svh;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  gap:24px;
+  padding:32px 16px 24px;
+  position:relative;
+}
+
+/* ---------- Entête ---------- */
+.heading{
+  text-align:center;
+  display:flex;
+  flex-direction:column;
+  gap:8px;
+}
+.title{
+  font-size: clamp(20px, 4vw, 28px);
+  font-weight:800;
+  letter-spacing:.5px;
+  text-transform:uppercase;
+  text-shadow:0 2px 6px rgba(0,0,0,.25);
+}
+.subtitle{
+  font-size:14px;
+  opacity:.9;
+}
+
+/* ---------- Carte calendrier (verre dépoli) ---------- */
+.calendar-card{
+  width:min(1100px, 100%);
+  background: linear-gradient(145deg, var(--glass-strong), var(--glass));
+  backdrop-filter: blur(18px);
+  border: 2px solid rgba(255,255,255,.25);
+  border-radius: 20px;
+  box-shadow: 0 25px 50px rgba(0,0,0,.18), inset 0 1px 0 rgba(255,255,255,.35);
+
+  /* Important: défilement horizontal propre en petits écrans */
+  overflow-x: auto;
+  overflow-y: hidden;
+  position: relative; /* pour la now-line */
+}
+
+/* ---------- Toolbar ---------- */
+.toolbar{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  padding:14px 16px;
+  border-bottom:1px solid rgba(255,255,255,.25);
+}
+.range{ font-weight:700; letter-spacing:.3px; }
+.range small{ font-weight:500; opacity:.9; }
+.controls{ display:flex; align-items:center; gap:8px; }
+.btn{
+  padding:8px 12px;
+  border-radius:10px;
+  border:1px solid rgba(255,255,255,.35);
+  background: rgba(255,255,255,.15);
+  color:#fff;
+  cursor:pointer;
+  font-weight:600;
+  transition:.2s ease;
+}
+.btn:hover{ transform:translateY(-1px); background: rgba(255,255,255,.22); }
+.btn:active{ transform:translateY(0); }
+
+@media (max-width: 640px){
+  .toolbar{ flex-direction:column; align-items:stretch; gap:10px; }
+  .controls{ justify-content:space-between; }
+}
+
+/* ---------- Grille semaine ---------- */
+/* 1 colonne segments + 7 jours ; 1 ligne d’en-tête + 4 segments */
+.week-grid{
+  display:grid;
+  grid-template-columns: var(--sidebar-w) repeat(7, minmax(90px, 1fr));
+  grid-template-rows: var(--hdr-h) repeat(4, var(--row-h));
+  width:100%;
+  min-width: 720px;                   /* évite l’écrasement, assure le scroll X */
+  border-top:1px solid var(--grid);
+  position:relative;
+  isolation:isolate;
+}
+
+/* Coin vide (en haut à gauche) */
+.corner{
+  border-bottom:1px solid var(--grid);
+  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.01));
+}
+
+/* En-têtes jours */
+.day-header{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:6px;
+  font-weight:700;
+  color:#fff;
+  border-left:1px solid var(--grid);
+  border-bottom:1px solid var(--grid);
+  background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.02));
+  padding: 0 6px;
+  font-size: 13px;
+  text-transform: capitalize;
+}
+.day-header.today{
+  background: linear-gradient(180deg, var(--today-bg), rgba(255,255,255,.02));
+  position:relative;
+}
+.day-header.today::after{
+  content:"Aujourd'hui";
+  position:absolute;
+  bottom:4px; right:8px;
+  font-size:11px; font-weight:800;
+  background:#ffffffcc;
+  color:#064e3b;
+  padding:2px 6px;
+  border-radius:999px;
+}
+
+/* Colonne des segments (Matin/Midi/Après-midi/Soir) */
+.hour-cell{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:12px;
+  color:#e7fffa;
+  border-top:1px dashed var(--grid);
+  border-right:1px solid var(--grid);
+  opacity:.95;
+}
+
+/* Cellules de planning (conteneurs d’événements) */
+.slot{
+  border-top:1px dashed var(--grid);
+  border-left:1px solid var(--grid);
+  position: relative;
+  overflow: visible;
+}
+.slot:nth-child(even){ background: rgba(255,255,255,.02); }
+
+/* ---------- Ligne “maintenant” ---------- */
+.now-line{
+  position:absolute;
+  left: var(--sidebar-w);   /* aligne avec le début des jours */
+  right:0;
+  top:0;
+  height:2px;
+  background: linear-gradient(90deg, var(--accent), #fff);
+  box-shadow:0 0 10px var(--accent);
+  transform: translateY(var(--pos,0px));
+  z-index:3;
+  pointer-events:none;
+}
+
+/* ---------- Événement (pilule) ---------- */
+.event{
+  position:absolute;
+  left:6px; right:6px;
+  top:var(--top);
+  height:var(--height);
+  background: rgba(20,184,166,.9);
+  color:#063a36;
+  border-radius:10px;
+  padding:8px;
+  font-size:12px;
+  font-weight:800;
+  box-shadow: 0 10px 20px rgba(0,0,0,.2);
+  overflow:hidden;
+  display:flex;
+  align-items:center;
+  gap:6px;
+  font-family: "Segoe UI Emoji", "Apple Color Emoji", "Noto Color Emoji", sans-serif;
+}
+
+@media (max-width: 640px){
+  .event{ font-size:11px; padding:6px; }
+}
+
+/* ---------- Micro-ajustements typographiques ---------- */
+@media (max-width: 900px){
+  .hour-cell{ font-size:11px; }
+  .day-header{ font-size:12px; }
+}
+@media (max-width: 640px){
+  .hour-cell{ font-size:10px; }
+  .day-header{ font-size:11px; }
+}
+
+/* ---------- Accessibilité focus ---------- */
+.btn:focus-visible,
+.day-header:focus-visible,
+.slot .event:focus-visible{
+  outline: 2px solid #fff;
+  outline-offset: 2px;
+}

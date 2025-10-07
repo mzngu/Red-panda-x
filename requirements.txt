@@ -1,0 +1,27 @@
+# Framework API
+fastapi
+uvicorn
+
+# Database
+sqlalchemy
+psycopg2-binary
+
+# Auth & sécurité
+python-dotenv
+python-jose
+passlib[bcrypt]
+bcrypt
+email-validator
+python-multipart
+
+# Websockets
+websockets
+
+# Google Generative AI
+google-generativeai
+
+# Images
+pillow
+
+# Pydantic v2 (si ton projet est en v2)
+pydantic

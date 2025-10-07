@@ -1,0 +1,262 @@
+---
+import '../../styles/chatbot.css';
+import '../../styles/components/footer.css';
+import { Card, CardTitle } from '../../components/ui/card'
+import { Button } from '../../components/ui/button';
+import Footer from '../../components/Footer.astro';
+
+const API_BASE = import.meta.env.VITE_API_BASE ?? 'http://localhost:8080';
+const WS_URL   = import.meta.env.VITE_WS_URL   ?? 'ws://localhost:8090';
+---
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Interface</title>
+</head>
+<body>
+    <div class="container">
+        <div class="greeting-section">
+            <div class="greeting">Parles avec Sorrel</div>
+            <img src="/sorrel/pandaTalking.png" alt="Accueil" class="header-logo" />
+        </div>
+
+        <div class="chat-section">
+            <Card className="chat-card">
+                <CardTitle className="chat-title">Chat</CardTitle>
+                <img id="image-preview" class="image-preview hidden" alt="Aperçu de l'ordonnance"/>
+                <input type="file" id="image-input" class="file-input" accept="image/*" capture>
+                <Button id="upload-button" className="upload-button">Prendre une photo de l'ordonnance</Button>
+                
+                <div id="chat-messages" class="chat-messages"></div>
+                <form id="chat-form" class="chat-form">
+                    <input
+                        id="chat-input"
+                        type="text"
+                        class="chat-input"
+                        placeholder="Veuillez entrer votre message..."
+                        autocomplete="off"
+                    />
+                    <Button type="submit" className="send-button">Envoyer</Button>
+                </form>
+            </Card>
+        </div>
+
+        <Footer />
+    </div>
+
+
+<script is:inline define:vars={{ API_BASE, WS_URL }}>
+  let ws;
+  let imageDataURL = null;
+  let userProfile = null;
+  let currentConversationId = null;
+
+  const chatMessages  = document.getElementById('chat-messages');
+  const chatForm      = document.getElementById('chat-form');
+  const chatInput     = document.getElementById('chat-input');
+  const imageInput    = document.getElementById('image-input');
+  const uploadButton  = document.getElementById('upload-button');
+  const imagePreview  = document.getElementById('image-preview');
+
+  function getConversationIdFromURL() {
+    const params = new URLSearchParams(window.location.search);
+    return params.get('conversation_id');
+  }
+
+  async function createNewConversation(firstMessage) {
+    try {
+      const response = await fetch(`${API_BASE}/conversations/`, {
+        method: 'POST',
+        credentials: 'include',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          titre: firstMessage.length > 50 ? firstMessage.substring(0, 50) + '...' : firstMessage
+        })
+      });
+      if (response.ok) {
+        const conversation = await response.json();
+        currentConversationId = conversation.id;
+        console.log('Nouvelle conversation créée:', conversation);
+        return conversation;
+      }
+    } catch (err) {
+      console.error('Erreur création conversation:', err);
+    }
+    return null;
+  }
+
+  async function loadExistingConversation(conversationId) {
+    try {
+      const response = await fetch(`${API_BASE}/conversations/${conversationId}`, {
+        credentials: 'include'
+      });
+      if (response.ok) {
+        const conversation = await response.json();
+        currentConversationId = conversationId;
+
+        chatMessages.innerHTML = '';
+        conversation.messages.forEach(msg => {
+          appendMessage(msg.contenu, msg.role === 'user');
+        });
+
+        if (ws && ws.readyState === WebSocket.OPEN) {
+          ws.send(JSON.stringify({
+            action: 'load_history',
+            history: conversation.messages.map(m => ({
+              role: m.role === 'user' ? 'user' : 'model',
+              parts: [m.contenu]
+            }))
+          }));
+        }
+        console.log('Conversation chargée:', conversation);
+        return conversation;
+      }
+    } catch (err) {
+      console.error('Erreur chargement conversation:', err);
+    }
+    return null;
+  }
+
+  function showTypingIndicator() {
+    const typingDiv = document.createElement('div');
+    typingDiv.className = 'typing-indicator';
+    typingDiv.id = 'typing-indicator';
+    typingDiv.innerHTML = `
+      <img src="/sorrel/pandThinking.png" alt="Accueil" class="header-logo" />
+      <div class="dot"></div><div class="dot"></div><div class="dot"></div>
+    `;
+    chatMessages.appendChild(typingDiv);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  function hideTypingIndicator() {
+    const el = document.getElementById('typing-indicator');
+    if (el) el.remove();
+  }
+
+  function appendMessage(msg, self = false) {
+    const div = document.createElement('div');
+    div.textContent = msg;
+    div.className = self ? 'message user' : 'message bot';
+    chatMessages.appendChild(div);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+  }
+
+  uploadButton.addEventListener('click', () => imageInput.click());
+
+  imageInput.addEventListener('change', (event) => {
+    const file = event.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      imageDataURL = e.target.result;
+      imagePreview.src = imageDataURL;
+      imagePreview.classList.remove('hidden');
+      appendMessage("[Photo de l'ordonnance chargée]", true);
+
+      if (ws && ws.readyState === WebSocket.OPEN) {
+        ws.send(JSON.stringify({
+          message: '',
+          image: imageDataURL,
+          context: userProfile,
+          conversation_id: currentConversationId,
+          user_id: userProfile?.id
+        }));
+        showTypingIndicator();
+      }
+    };
+    reader.readAsDataURL(file);
+  });
+
+  function connect() {
+    console.log('Connecting to WebSocket...');
+    console.log('WS URL =', WS_URL);
+    ws = new WebSocket(WS_URL);
+
+    ws.onmessage = (event) => {
+      hideTypingIndicator();
+      try {
+        const data = JSON.parse(event.data);
+        console.log('Received data:', data);
+        if (data.response) appendMessage(data.response);
+        else if (data.error) appendMessage(`[Erreur: ${data.error}]`);
+        else appendMessage(event.data);
+      } catch {
+        appendMessage(event.data);
+      }
+    };
+
+    ws.onclose = () => {
+      hideTypingIndicator();
+      appendMessage('[Déconnecté du serveur]');
+    };
+
+    ws.onerror = () => {
+      hideTypingIndicator();
+      appendMessage('[Erreur de connexion]');
+    };
+
+    ws.onopen = async () => {
+      console.log('WebSocket connection opened');
+      appendMessage('[Connecté au serveur]');
+      const urlConversationId = getConversationIdFromURL();
+      if (urlConversationId) await loadExistingConversation(parseInt(urlConversationId));
+    };
+  }
+
+  chatForm.addEventListener('submit', async (e) => {
+    e.preventDefault();
+    if (!ws || ws.readyState !== WebSocket.OPEN) return;
+
+    const message = chatInput.value;
+    if (!message && !imageDataURL) {
+      alert("Veuillez entrer un message ou charger une image.");
+      return;
+    }
+
+    if (!currentConversationId && message) {
+      await createNewConversation(message);
+    }
+
+    ws.send(JSON.stringify({
+      message,
+      image: imageDataURL,
+      context: userProfile,
+      conversation_id: currentConversationId,
+      user_id: userProfile?.id
+    }));
+
+    if (message) appendMessage(message, true);
+
+    showTypingIndicator();
+    chatInput.value = '';
+    imageDataURL = null;
+    imagePreview.classList.add('hidden');
+    imageInput.value = '';
+  });
+
+  async function fetchUserProfile() {
+    try {
+      const res = await fetch(`${API_BASE}/auth/me`, { credentials: 'include' });
+      if (!res.ok) throw new Error('Non authentifié');
+      userProfile = await res.json();
+      console.log('Profil chargé:', userProfile);
+    } catch (err) {
+      console.error('Erreur chargement profil:', err);
+    }
+  }
+
+  async function initializeChat() {
+    await fetchUserProfile();
+    connect();
+  }
+
+  document.addEventListener('DOMContentLoaded', initializeChat);
+</script>
+
+
+</body>
+</html>

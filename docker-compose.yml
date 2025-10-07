@@ -1,0 +1,71 @@
+services:
+  postgres_db:
+    image: postgres:14
+    container_name: postgres_db
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: sorrel_db
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - app-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: .
+      dockerfile: server/Dockerfile
+    container_name: backend
+    command: ["/wait-for-it.sh", "-t", "60", "postgres_db:5432", "--",
+          "python", "-m", "server.server"]
+    environment:
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+      DB_HOST: postgres_db
+      DB_PORT: 5432
+      DB_NAME: sorrel_db
+      HOST: 0.0.0.0
+      FASTAPI_PORT: 8080
+      WEBSOCKET_PORT: 8090
+      FRONTEND_URL: http://localhost:4321
+    volumes:
+      - .:/app
+    ports:
+      - "8080:8080"
+      - "8090:8090" 
+    depends_on:
+      postgres_db:
+        condition: service_healthy
+    networks:
+      - app-network
+
+  frontend:
+    build:
+      context: .
+      dockerfile: astro-app/Dockerfile
+    container_name: frontend
+    command: ["npm", "run", "dev", "--", "--host", "0.0.0.0"]
+    ports:
+      - "4321:4321"
+    environment:
+      VITE_API_BASE: http://localhost:8080
+      VITE_WS_URL: ws://localhost:8090
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+
+volumes:
+  pgdata:
+
+networks:
+  app-network:
+    driver: bridge

@@ -1,0 +1,258 @@
+---
+import Footer from '../../components/Footer.astro';
+import '../../styles/home.css';
+import '../../styles/components/footer.css';
+---
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Ton rappel quotidien - Sorrel</title>
+</head>
+<body>
+    <div class="container">
+        <canvas id="curveCanvas"></canvas>
+               
+        <div class="greeting-section">
+            <img class="sorrel-pic" src="../sorrel/pandaNormal.png" alt="Sorrel" id="currentAvatar"/>
+
+            <div class="main-card-header">
+                <div>Ton rappel quotidien</div>
+            </div>
+            
+            <div class="main-card" id="dailyList"></div>
+        </div>
+        
+        <Footer />
+    </div>
+
+    <script src="/scripts/checkAuth.js" is:inline></script>
+
+  <script is:inline>
+  let currentUser = null;
+
+  const availableAvatars = [
+    { id: 'normal', src: '/sorrel/pandaNormal.png', name: 'Normal' },
+    { id: 'medicament', src: '/sorrel/pandaMedicine.png', name: 'Medicament' },
+    { id: 'happy', src: '/sorrel/pandaPawsUp.png', name: 'Heureux' },
+    { id: 'ordo', src: '/sorrel/pandaPrescription.png', name: 'Le medecin' },
+    { id: 'bonjour', src: '/sorrel/pandSayingHi.png', name: 'Bonjour' },
+    { id: 'plante', src: '/sorrel/pandaWithPlant.png', name: "L'herboriste" },
+    { id: 'reflechis', src: '/sorrel/pandThinking.png', name: "Le penseur" },
+  ];
+
+  async function loadProfile() {
+    try {
+      const response = await fetch('http://localhost:8080/auth/me', {
+        credentials: 'include'
+      });
+      if (!response.ok) throw new Error('Non authentifié');
+      currentUser = await response.json();
+      loadUserAvatar();
+      loadTodayEvents();
+    } catch (error) {
+      console.error('Erreur chargement profil:', error);
+      window.location.href = '/connexion/connexion';
+    }
+  }
+
+  function loadUserAvatar() {
+    const userAvatar = currentUser?.avatar || 'normal';
+    const avatarData = availableAvatars.find(avatar => avatar.id === userAvatar);
+    if (avatarData) {
+      const avatarImg = document.getElementById('currentAvatar');
+      if (avatarImg) {
+        avatarImg.src = avatarData.src;
+        avatarImg.alt = avatarData.name;
+      }
+    }
+  }
+
+  // --------- Rappels du jour ----------
+  const SEGMENTS = [
+    { key:'morning',   label:'Matin',        start:6,  end:12 },
+    { key:'noon',      label:'Midi',         start:12, end:15 },
+    { key:'afternoon', label:'Après-midi',   start:15, end:18 },
+    { key:'evening',   label:'Soir',         start:18, end:23 },
+  ];
+
+  const dailyList = () => document.getElementById('dailyList');
+
+  function startOfToday() {
+    const d = new Date();
+    d.setHours(0,0,0,0);
+    return d;
+  }
+  function endOfToday() {
+    const d = new Date();
+    d.setHours(23,59,59,999);
+    return d;
+  }
+  const fmtTime = d => d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
+
+  function pillIconSVG({ w=18, h=18, left='#22c55e', right='#38bdf8', sep='#ffffff', outline='#ffffff' } = {}) {
+    return `
+<svg width="${w}" height="${h}" viewBox="0 0 64 64" aria-hidden="true" focusable="false">
+  <defs>
+    <linearGradient id="pillLeft" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="${left}" stop-opacity="1"/>
+      <stop offset="1" stop-color="${left}" stop-opacity=".85"/>
+    </linearGradient>
+    <linearGradient id="pillRight" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="${right}" stop-opacity="1"/>
+      <stop offset="1" stop-color="${right}" stop-opacity=".85"/>
+    </linearGradient>
+    <clipPath id="pillClip"><rect x="2" y="10" width="60" height="44" rx="22" ry="22"/></clipPath>
+  </defs>
+  <g>
+    <g clip-path="url(#pillClip)">
+      <rect x="2"  y="10" width="30" height="44" fill="url(#pillLeft)"/>
+      <rect x="32" y="10" width="30" height="44" fill="url(#pillRight)"/>
+      <path d="M2,18 C18,8 46,8 62,18 L62,26 C46,16 18,16 2,26 Z" fill="#fff" opacity=".18"/>
+    </g>
+    <line x1="32" y1="12" x2="32" y2="52" stroke="${sep}" stroke-width="2" opacity=".95"/>
+    <rect x="2" y="10" width="60" height="44" rx="22" ry="22" fill="none" stroke="${outline}" stroke-width="2" opacity=".9"/>
+  </g>
+</svg>`;
+  }
+
+  function renderDaily(events) {
+    const root = dailyList();
+    root.innerHTML = ''; 
+    const buckets = { morning:[], noon:[], afternoon:[], evening:[] };
+    const today0 = startOfToday(), today1 = endOfToday();
+
+    events.forEach(ev => {
+      const d = new Date(ev.start_dt);
+      if (d < today0 || d > today1) return;
+      const h = d.getHours();
+      let key = 'morning';
+      if (h >= 12 && h < 15) key = 'noon';
+      else if (h >= 15 && h < 18) key = 'afternoon';
+      else if (h >= 18) key = 'evening';
+      buckets[key].push({ ...ev, _date: d });
+    });
+
+    Object.values(buckets).forEach(arr => arr.sort((a,b)=> a._date - b._date));
+    let total = 0;
+
+    SEGMENTS.forEach(seg => {
+      const arr = buckets[seg.key];
+      if (!arr.length) return;
+      total += arr.length;
+
+      const section = document.createElement('div');
+      section.className = 'time-section';
+      section.innerHTML = `<p>${seg.label}</p>`;
+      
+      arr.forEach(ev => {
+        const item = document.createElement('div');
+        item.className = 'medication-item' + (ev.done ? ' is-done' : '');
+        item.dataset.eventId = ev.id;
+
+        const checkedAttr = ev.done ? 'checked' : '';
+
+        item.innerHTML = `
+          <div class="medication-icon">${pillIconSVG({ w:18, h:18 })}</div>
+          <div class="medication-info">
+            <div class="medication-name">${ev.title || 'Événement'}</div>
+            <div class="medication-dose">${fmtTime(ev._date)}${ev.location ? ' • ' + ev.location : ''}</div>
+          </div>
+          <label class="switch">
+            <input type="checkbox" class="done-toggle" ${ev.done ? 'checked' : ''}/>
+            <span class="slider"></span>
+          </label>
+        `;
+        section.appendChild(item);
+      });
+
+      root.appendChild(section);
+    });
+
+    if (total === 0) {
+      root.innerHTML = `
+        <div class="time-section">
+          <p>Aujourd’hui</p>
+          <div class="medication-item" style="opacity:.8">
+            <div class="medication-icon">😴</div>
+            <div class="medication-info">
+              <div class="medication-name">Rien de prévu</div>
+              <div class="medication-dose">Profite de ta journée ✨</div>
+            </div>
+          </div>
+        </div>`;
+    }
+
+    // Gestionnaire (PATCH + UI optimiste, basique)
+    root.querySelectorAll('.done-toggle').forEach(chk => {
+      chk.addEventListener('change', async function () {
+        const item = this.closest('.medication-item');
+        const eventId = item?.dataset.eventId;
+        if (!eventId) return;
+
+        const nextState = this.checked;
+        this.disabled = true; // évite double-clic pendant le PATCH
+
+        try {
+          const res = await fetch(`http://localhost:8080/calendar/events/${eventId}/done`, {
+            method: 'PATCH',
+            credentials: 'include',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ done: nextState })
+          });
+          if (!res.ok) throw new Error('HTTP ' + res.status);
+          item.classList.toggle('is-done', nextState);
+        } catch (err) {
+          console.error('Maj done échouée:', err);
+          // rollback UI si erreur
+          this.checked = !nextState;
+          alert("Impossible de mettre à jour l'état. Réessaie plus tard.");
+        } finally {
+          this.disabled = false;
+        }
+      });
+    });
+  }
+
+  async function loadTodayEvents() {
+    try {
+      const res = await fetch('http://localhost:8080/calendar/events', { credentials: 'include' });
+      if (!res.ok) throw new Error('HTTP ' + res.status);
+      const json = await res.json();
+      const events = Array.isArray(json) ? json : (json.events || json.data || []);
+      renderDaily(events);
+    } catch (e) {
+      console.error('Erreur events:', e);
+      renderDaily([]);
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', () => {
+    loadProfile();
+  });
+
+  // --------- Canvas décoratif ----------
+  const canvas = document.getElementById('curveCanvas');
+  const ctx = canvas.getContext('2d');
+  function resizeCanvas() {
+    canvas.width = canvas.clientWidth;
+    canvas.height = canvas.clientHeight;
+    drawCurve();
+  }
+  function drawCurve() {
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+    ctx.beginPath();
+    ctx.strokeStyle = 'white';
+    ctx.lineWidth = 2;
+    ctx.moveTo(0, canvas.height * 0.2);
+    ctx.bezierCurveTo(canvas.width * 0.8, canvas.height * 0.2, canvas.width * 0.2, canvas.height * 0.8, canvas.width, canvas.height * 0.9);
+    ctx.stroke();
+  }
+  window.addEventListener('resize', resizeCanvas);
+  resizeCanvas();
+</script>
+
+</body>
+</html>

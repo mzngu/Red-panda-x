@@ -1,0 +1,32 @@
+---
+import AuthCard from '../../components/AuthCard.tsx';
+import '../../styles/global.css';
+---
+
+<html lang="fr">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+  <title>Connexion | Don't Panic</title>
+</head>
+<body class="bg-gradient-to-br from-emerald-400 to-teal-600 min-h-screen">
+  <div class="min-h-screen flex items-center justify-center p-4">
+    <div class="w-full max-w-md">
+      <!-- Onglets en haut -->
+      <div class="flex mb-8 text-white">
+        <div class="flex-1 text-center">
+          <a href="/inscription/inscription" class="text-lg opacity-60 hover:opacity-100 transition-opacity">
+            Inscription
+          </a>
+        </div>
+        <div class="flex-1 text-center">
+          <span class="text-lg font-semibold">Connexion</span>
+        </div>
+      </div>
+      
+      <AuthCard mode="login" client:load />
+    </div>
+  </div>
+</body>
+</html>

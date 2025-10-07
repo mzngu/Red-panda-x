@@ -1,0 +1,1026 @@
+---
+import Footer from '../../components/Footer.astro';
+import '../../styles/profile.css';
+import '../../styles/components/footer.css';
+---
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title>Mon Profil | Don't Panic</title>
+    <style>
+        /* Animation d'adieu */
+        .farewell-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: linear-gradient(45deg, #1a1a2e, #16213e, #0f3460);
+            background-size: 400% 400%;
+            animation: gradientShift 3s ease infinite;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            z-index: 9999;
+            flex-direction: column;
+        }
+
+        @keyframes gradientShift {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        .farewell-heart {
+            font-size: 50px;
+            animation: heartBreak 4s ease-in-out;
+            margin-bottom: 30px;
+            filter: drop-shadow(0 0 20px rgba(255, 100, 100, 0.8));
+        }
+
+        @keyframes heartBreak {
+            0% { 
+                transform: scale(1) rotate(0deg);
+                filter: hue-rotate(0deg) drop-shadow(0 0 20px rgba(255, 100, 100, 0.8));
+            }
+            25% { 
+                transform: scale(1.5) rotate(-10deg);
+                filter: hue-rotate(90deg) drop-shadow(0 0 30px rgba(255, 50, 50, 0.9));
+            }
+            50% { 
+                transform: scale(3) rotate(10deg);
+                filter: hue-rotate(180deg) drop-shadow(0 0 40px rgba(200, 50, 255, 0.9));
+            }
+            75% { 
+                transform: scale(5) rotate(-15deg);
+                filter: hue-rotate(270deg) drop-shadow(0 0 50px rgba(100, 100, 255, 0.9));
+            }
+            100% { 
+                transform: scale(8) rotate(0deg);
+                filter: hue-rotate(360deg) drop-shadow(0 0 80px rgba(255, 255, 255, 0.5));
+                opacity: 0;
+            }
+        }
+
+        .farewell-message {
+            color: white;
+            font-size: 24px;
+            font-weight: 600;
+            text-align: center;
+            opacity: 0;
+            animation: fadeInMessage 2s ease-in-out 2s forwards;
+            text-shadow: 0 0 10px rgba(255, 255, 255, 0.5);
+            margin-bottom: 20px;
+        }
+
+        @keyframes fadeInMessage {
+            0% { opacity: 0; transform: translateY(30px); }
+            100% { opacity: 1; transform: translateY(0); }
+        }
+
+        .farewell-panda {
+            font-size: 80px;
+            opacity: 0;
+            animation: pandaWave 3s ease-in-out 2.5s forwards;
+            margin-bottom: 20px;
+        }
+
+        @keyframes pandaWave {
+            0% { 
+                opacity: 0; 
+                transform: scale(0) rotate(-180deg);
+            }
+            50% { 
+                opacity: 1; 
+                transform: scale(1.2) rotate(10deg);
+            }
+            70% { 
+                transform: scale(1) rotate(-5deg);
+            }
+            100% { 
+                opacity: 1; 
+                transform: scale(1) rotate(0deg);
+            }
+        }
+
+        .farewell-sparkles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .sparkle {
+            position: absolute;
+            font-size: 20px;
+            opacity: 0;
+            animation: sparkleFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes sparkleFloat {
+            0% { 
+                opacity: 0; 
+                transform: translate(0, 0) scale(0) rotate(0deg); 
+            }
+            25% { 
+                opacity: 1; 
+                transform: translate(var(--random-x), var(--random-y)) scale(1.5) rotate(180deg); 
+            }
+            50% { 
+                opacity: 1; 
+                transform: translate(calc(var(--random-x) * 1.5), calc(var(--random-y) * 1.5)) scale(1) rotate(360deg); 
+            }
+            75% { 
+                opacity: 0.8; 
+                transform: translate(calc(var(--random-x) * 2), calc(var(--random-y) * 2)) scale(0.5) rotate(540deg); 
+            }
+            100% { 
+                opacity: 0; 
+                transform: translate(calc(var(--random-x) * 3), calc(var(--random-y) * 3)) scale(0) rotate(720deg); 
+            }
+        }
+
+        @keyframes sparkleExplode {
+            0% { 
+                opacity: 0; 
+                transform: scale(0) rotate(0deg); 
+            }
+            10% { 
+                opacity: 1; 
+                transform: scale(1.8) rotate(45deg); 
+            }
+            20% { 
+                transform: scale(1.2) rotate(90deg) translateX(var(--explode-x)) translateY(var(--explode-y)); 
+            }
+            40% { 
+                opacity: 1; 
+                transform: scale(1) rotate(180deg) translateX(calc(var(--explode-x) * 2)) translateY(calc(var(--explode-y) * 2)); 
+            }
+            70% { 
+                opacity: 0.7; 
+                transform: scale(0.8) rotate(300deg) translateX(calc(var(--explode-x) * 3)) translateY(calc(var(--explode-y) * 3)); 
+            }
+            100% { 
+                opacity: 0; 
+                transform: scale(0) rotate(360deg) translateX(calc(var(--explode-x) * 4)) translateY(calc(var(--explode-y) * 4)); 
+            }
+        }
+
+        .farewell-final-message {
+            color: #ffd700;
+            font-size: 18px;
+            text-align: center;
+            opacity: 0;
+            animation: fadeInFinal 2s ease-in-out 4s forwards;
+            font-style: italic;
+            max-width: 400px;
+        }
+
+        @keyframes fadeInFinal {
+            0% { opacity: 0; transform: scale(0.8); }
+            100% { opacity: 1; transform: scale(1); }
+        }
+
+        .loading-dots {
+            display: inline-block;
+            opacity: 0;
+            animation: fadeIn 1s ease-in-out 6s forwards;
+        }
+
+        .loading-dots::after {
+            content: '';
+            animation: dots 1.5s infinite;
+        }
+
+        @keyframes dots {
+            0%, 20% { content: '.'; }
+            40% { content: '..'; }
+            60% { content: '...'; }
+            80%, 100% { content: ''; }
+        }
+
+        @keyframes fadeIn {
+            0% { opacity: 0; }
+            100% { opacity: 1; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="age-user"></div>
+            <div class="header-description">Gérez vos informations personnelles</div>
+        </header>
+
+        <div class="greeting-section">
+            <div class="greeting">Mon profil</div>
+        </div>
+
+        <div id="errorMessage" class="error-message" style="display: none;"></div>
+        <div id="successMessage" class="success-message" style="display: none;"></div>
+
+        <div class="avatar-section">
+            <div class="avatar-info">
+                <div class="avatar-container" id="currentAvatar">
+                    <div class="avatar-inner">
+                        <img src="/sorrel/pandaNormal.png" alt="Avatar" class="avatar-img" id="avatarImage">
+                    </div>
+                    <div class="avatar-edit-overlay" id="avatarEditBtn">
+                        <span>📸</span>
+                    </div>
+                </div>
+                <div id="userEmail" class="user-email">Chargement...</div>
+            </div>
+            <!-- Conteneur pour les boutons d'action -->
+            <div class="avatar-actions">
+                
+                <button id="editToggle" class="edit-mode-toggle">
+                    <svg width="16" height="16" viewBox="0 0 512 512" fill="currentColor">
+                        <path d="M384 224v184a40 40 0 01-40 40H104a40 40 0 01-40-40V168a40 40 0 0140-40h167.48" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/>
+                        <path d="M459.94 53.25a16.06 16.06 0 00-23.22-.56L424.35 65a8 8 0 000 11.31l11.34 11.32a8 8 0 0011.34 0l12.06-12c6.1-6.09 6.67-16.01.85-22.38zM399.34 90L218.82 270.2a9 9 0 00-2.31 3.93L208.16 299a3.91 3.91 0 004.86 4.86l24.85-8.35a9 9 0 003.93-2.31L422 112.66a9 9 0 000-12.66L410.67 90a9 9 0 00-11.33 0z"/>
+                    </svg>
+                    <span class="button-text">Modifier</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Animation d'adieu -->
+        <div id="farewellOverlay" class="farewell-overlay">
+            <div class="heart-explosion" id="heartExplosion"></div>
+            <div class="farewell-sparkles" id="sparklesContainer"></div>
+            <div class="farewell-heart">💔</div>
+            <div class="farewell-panda">🐼</div>
+            <div class="farewell-message">
+                Nos chemins se séparent... 😢
+            </div>
+            <div class="farewell-final-message">
+                Merci pour cette aventure ! 
+                <br>Peut-être à bientôt sur Don't Panic ! 🚀
+                <br><span class="loading-dots">Redirection en cours</span>
+            </div>
+        </div>
+
+        <!-- Modal de confirmation de suppression -->
+        <div id="deleteModal" class="avatar-modal" style="display: none;">
+            <div class="avatar-modal-content" style="max-width: 400px;">
+                <div class="avatar-modal-header">
+                    <h3 style="color: #dc2626;">⚠️ Supprimer le compte</h3>
+                    <button class="avatar-modal-close" id="closeDeleteModal">✕</button>
+                </div>
+                <div style="padding: 16px 0;">
+                    <p style="color: #6b7280; margin-bottom: 16px;">
+                        Êtes-vous sûr de vouloir supprimer votre compte 😟 ?
+                        <br>Cette action est irréversible 😡. 
+                    </p>
+                    <p style="color: #dc2626; font-weight: 600; font-size: 14px;">
+                        Toutes vos données seront définitivement perdues 😱.
+                    </p>
+                </div>
+                <div class="avatar-modal-footer">
+                    <div style="display: flex; gap: 12px;">
+                        <button id="cancelDeleteBtn" style="background: #6b7280; color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; flex: 1;">
+                            Annuler
+                        </button>
+                        <button id="confirmDeleteBtn" style="background: linear-gradient(135deg, #dc2626, #b91c1c); color: white; border: none; padding: 12px 24px; border-radius: 8px; cursor: pointer; flex: 1;">
+                            Supprimer définitivement
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Modal de sélection d'avatar -->
+        <div id="avatarModal" class="avatar-modal" style="display: none;">
+            <div class="avatar-modal-content">
+                <div class="avatar-modal-header">
+                    <h3>Choisissez votre avatar</h3>
+                    <button class="avatar-modal-close" id="closeAvatarModal">✕</button>
+                </div>
+                <div class="avatar-grid" id="avatarGrid">
+                    <!-- Les avatars seront générés par JS -->
+                </div>
+                <div class="avatar-modal-footer">
+                    <button id="saveAvatarBtn" class="save-avatar-btn" disabled>
+                        ✓ Confirmer
+                    </button>
+                </div>
+            </div>
+        </div>
+
+        <!-- Formulaire principal pour les informations personnelles -->
+        <form id="profileForm" class="form-section">
+            <div class="form-grid">
+                <label class="form-label">Sexe</label>
+                <label class="radio-option">
+                    <input type="radio" name="sexe" value="homme" class="form-input" disabled/>
+                    <span>Homme</span>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="sexe" value="femme" class="form-input" disabled/>
+                    <span>Femme</span>
+                </label>
+                <label class="radio-option">
+                    <input type="radio" name="sexe" value="autre" class="form-input" disabled />
+                    <span>Autre</span>
+                </label>
+                <div class="form-group" id="sexe_autre_container" style="display:none;">
+                    <label class="form-label">Autre (préciser)</label>
+                    <input type="text" id="sexe_autre" name="sexe_autre" class="form-input" disabled />
+                </div>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">Prénom</label>
+                    <input type="text" id="prenom" name="prenom" class="form-input" disabled>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Nom</label>
+                    <input type="text" id="nom" name="nom" class="form-input" disabled>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Date de naissance</label>
+                <input type="date" id="date_naissance" name="date_naissance" class="form-input" disabled>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">Numéro de téléphone</label>
+                <input type="tel" id="numero_telephone" name="numero_telephone" class="form-input" disabled>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label">E-mail</label>
+                <input type="email" id="email" name="email" class="form-input" disabled>
+            </div>
+
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">Nouveau mot de passe</label>
+                    <input type="password" id="mdp" name="mdp" class="form-input" disabled autocomplete="new-password">
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Confirmer le mot de passe</label>
+                    <input type="password" id="conf-mdp" name="conf-mdp" class="form-input" disabled autocomplete="new-password">
+                </div>
+            </div>
+
+            <button type="submit" id="saveBtn" class="save-btn" style="display: none;">
+                💾 Sauvegarder
+            </button>
+        </form>
+
+        <!-- Section séparée pour les allergies -->
+        <div class="allergies-section">
+            <h3>Gestion des allergies</h3>
+            <div class="allergy-input-container">
+                <input type="text" id="allergie" name="allergie" class="form-input" placeholder="Ajouter une allergie...">
+                <button type="button" id="addAllergie" class="save-btn">➕ Ajouter</button>
+            </div>
+            <ul id="listAllergie" class="allergy-list">
+                <li>Mes allergies</li>
+            </ul>
+        </div>
+
+        <!-- Section séparée pour les ant. médicaux -->
+        <div class="allergies-section">
+            <h3>Gestion des antécédents médicaux</h3>
+            <div class="allergy-input-container">
+                <input type="text" id="antecedent" name="antecedent" class="form-input" placeholder="Ajouter un antécédent médical...">
+                <button type="button" id="addAntecedent" class="save-btn">➕ Ajouter</button>
+            </div>
+            <ul id="listAntecedent" class="allergy-list">
+                <li>Mes antécédents médicaux</li>
+            </ul>
+        </div>
+
+        <div class="logout-section">
+            <button id="logoutBtn" class="logout-btn">
+                <svg width="16" height="16" viewBox="0 0 512 512" fill="currentColor">
+                    <path d="M304 336v40a40 40 0 01-40 40H104a40 40 0 01-40-40V136a40 40 0 0140-40h160a40 40 0 0140 40v40M368 336l80-80-80-80M176 256h256" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/>
+                </svg>
+                Se déconnecter
+            </button>
+            <button id="supToggle" class="sup-mode-toggle">
+                    <svg width="16" height="16" viewBox="0 0 512 512" fill="currentColor">
+                        <path d="M112 112l20 320c.95 18.49 14.4 32 32 32h184c17.67 0 30.87-13.51 32-32l20-320" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/>
+                        <path stroke="currentColor" stroke-linecap="round" stroke-miterlimit="10" stroke-width="32" d="m80 112h352"/>
+                        <path d="M192 112V72h0a23.93 23.93 0 0124-24h80a23.93 23.93 0 0124 24h0v40M256 176v224M184 176l8 224M328 176l-8 224" fill="none" stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="32"/>
+                    </svg>
+                    Supprimer
+            </button>
+        </div>
+
+        <Footer />
+    </div>
+
+    <script>
+        let editMode = false;
+        let currentUser = null;
+        let selectedAvatar = null;
+        let userAllergies = [];      // Allergies (noms) pour l'affichage
+        let userAntecedents = [];    // Antécédents (noms) pour l'affichage
+
+        // Maps pour relier nom -> id DB (suppression/édition)
+        let allergyIdByName = new Map();
+        let antecedentIdByName = new Map();
+
+        const sexeRadios = () => document.querySelectorAll('input[name="sexe"]');
+        const sexeAutreContainer = document.getElementById('sexe_autre_container');
+        const sexeAutreInput = document.getElementById('sexe_autre');
+
+        const maxAllergies = 10; // Limite maximale d'allergies
+        const maxAntecedents = 10;
+
+        // Liste des avatars disponibles - ajustez selon vos images
+        const availableAvatars = [
+            { id: 'normal', src: '/sorrel/pandaNormal.png', name: 'Normal' },
+            { id: 'medicament', src: '/sorrel/pandaMedicine.png', name: 'Medicament' },
+            { id: 'happy', src: '/sorrel/pandaPawsUp.png', name: 'Heureux' },
+            { id: 'ordo', src: '/sorrel/pandaPrescription.png', name: 'Le medecin' },
+            { id: 'bonjour', src: '/sorrel/pandSayingHi.png', name: 'Bonjour' },
+            { id: 'plante', src: '/sorrel/pandaWithPlant.png', name: "L'herboriste" },
+            { id: 'reflechis', src: '/sorrel/pandThinking.png', name: "Le penseur" },
+        ];
+
+        // Éléments DOM
+        const allergieInput = document.getElementById('allergie');
+        const antecedentInput = document.getElementById('antecedent');
+        const addButton = document.getElementById('addAllergie');
+        const addAntecedentBtn = document.getElementById('addAntecedent');
+        const listAllergie = document.getElementById('listAllergie');
+        const listAntecedent = document.getElementById('listAntecedent');
+
+        // ===== Validation / Sanitize =====
+        function validateAllergie(allergie) {
+            const errors = [];
+            if (!allergie || allergie.trim().length === 0) errors.push('Veuillez saisir une allergie.');
+            if (allergie.trim().length < 2) errors.push("L'allergie doit contenir au moins 2 caractères.");
+            if (allergie.trim().length > 50) errors.push("L'allergie ne peut pas dépasser 50 caractères.");
+            if (userAllergies.some(existing => existing.toLowerCase() === allergie.toLowerCase())) errors.push('Cette allergie est déjà dans la liste.');
+            if (userAllergies.length >= maxAllergies) errors.push(`Vous ne pouvez pas ajouter plus de ${maxAllergies} allergies.`);
+            if (/[<>\"'&]/.test(allergie)) errors.push("L'allergie contient des caractères non autorisés.");
+            return errors;
+        }
+        function sanitizeAllergie(allergie) {
+            return allergie.trim().toLowerCase().replace(/\s+/g, ' ').replace(/^\w/, c => c.toUpperCase());
+        }
+
+        function validateAntecedent(value) {
+            const errors = [];
+            if (!value || value.trim().length === 0) errors.push('Veuillez saisir un antécédent médical.');
+            if (value.trim().length < 2) errors.push("L'antécédent médical doit contenir au moins 2 caractères.");
+            if (value.trim().length > 50) errors.push("L'antécédent médical ne peut pas dépasser 50 caractères.");
+            if (userAntecedents.some(a => a.toLowerCase() === value.toLowerCase())) errors.push('Cet antécédent est déjà dans la liste.');
+            if (userAntecedents.length >= maxAntecedents) errors.push(`Vous ne pouvez pas ajouter plus de ${maxAntecedents} antécédents.`);
+            if (/[<>\"'&]/.test(value)) errors.push("L'antécédent contient des caractères interdits.");
+            return errors;
+        }
+        function sanitizeAntecedent(value) {
+            return value.trim().toLowerCase().replace(/\s+/g, ' ').replace(/^\w/, c => c.toUpperCase());
+        }
+
+        // ===== API =====
+        async function fetchAllergiesFromAPI() {
+            const res = await fetch(`http://localhost:8080/utilisateurs/${currentUser.id}/allergies`, { credentials: 'include' });
+            if (!res.ok) throw new Error('Erreur chargement allergies');
+            return await res.json(); // [{id, nom, description}]
+        }
+        async function fetchAntecedentsFromAPI() {
+            const res = await fetch(`http://localhost:8080/utilisateurs/${currentUser.id}/antecedents`, { credentials: 'include' });
+            if (!res.ok) throw new Error('Erreur chargement antécédents');
+            return await res.json(); // [{id, nom, description, date_diagnostic}]
+        }
+
+        // ===== Rendu DOM =====
+        function createAllergieElement(allergieName, id) {
+            const li = document.createElement('li');
+            li.setAttribute('data-allergie', allergieName.toLowerCase());
+            if (id) li.setAttribute('data-id', String(id));
+            li.innerHTML = `
+                <span class="allergy-name">${allergieName}</span>
+                <button type="button" 
+                        class="remove-allergy" 
+                        onclick="removeAllergie('${allergieName.toLowerCase()}', this)"
+                        title="Supprimer ${allergieName}"
+                        aria-label="Supprimer l'allergie ${allergieName}">
+                    ×
+                </button>
+            `;
+            listAllergie.appendChild(li);
+            if (listAllergie.scrollHeight > listAllergie.clientHeight) {
+                listAllergie.scrollTop = listAllergie.scrollHeight;
+            }
+        }
+
+        function createAntecedentElement(name, id) {
+            const li = document.createElement('li');
+            li.setAttribute('data-antecedent', name.toLowerCase());
+            if (id) li.setAttribute('data-id', String(id));
+            li.innerHTML = `<span>${name}</span>
+                <button type="button" class="remove-antecedent" onclick="removeAntecedent('${name.toLowerCase()}', this)">×</button>`;
+            listAntecedent.appendChild(li);
+        }
+
+        function updateEmptyState() {
+            const items = listAllergie.querySelectorAll('li:not(:first-child):not(.empty-state)');
+            let empty = listAllergie.querySelector('.empty-state');
+            if (!items.length && !empty) {
+                empty = document.createElement('li');
+                empty.className = 'empty-state';
+                empty.textContent = 'Aucune allergie ajoutée pour le moment';
+                listAllergie.appendChild(empty);
+            } else if (items.length && empty) {
+                empty.remove();
+            }
+        }
+
+        function updateEmptyStateAnt() {
+            const items = listAntecedent.querySelectorAll('li:not(:first-child):not(.empty-state)');
+            let empty = listAntecedent.querySelector('.empty-state');
+            if (!items.length && !empty) {
+                empty = document.createElement('li');
+                empty.className = 'empty-state';
+                empty.textContent = 'Aucun antécédent médical ajouté';
+                listAntecedent.appendChild(empty);
+            } else if (items.length && empty) {
+                empty.remove();
+            }
+        }
+
+        async function loadUserAllergies() {
+            // reset
+            userAllergies = [];
+            allergyIdByName.clear();
+            listAllergie.querySelectorAll('li:not(:first-child)').forEach(item => item.remove());
+            try {
+                const rows = await fetchAllergiesFromAPI();
+                rows.forEach(r => {
+                    userAllergies.push(r.nom);
+                    allergyIdByName.set(r.nom.toLowerCase(), r.id);
+                    createAllergieElement(r.nom, r.id);
+                });
+            } catch (e) {
+                console.error(e);
+            }
+            updateEmptyState();
+        }
+
+        async function loadUserAntecedents() {
+            userAntecedents = [];
+            antecedentIdByName.clear();
+            listAntecedent.querySelectorAll('li:not(:first-child)').forEach(item => item.remove());
+            try {
+                const rows = await fetchAntecedentsFromAPI();
+                rows.forEach(r => {
+                    userAntecedents.push(r.nom);
+                    antecedentIdByName.set(r.nom.toLowerCase(), r.id);
+                    createAntecedentElement(r.nom, r.id);
+                });
+            } catch (e) {
+                console.error(e);
+            }
+            updateEmptyStateAnt();
+        }
+
+        // ===== Ajout / Suppression (persistants DB) =====
+        async function addAllergie() {
+            const allergieValue = allergieInput.value.trim();
+            const errors = validateAllergie(allergieValue);
+            if (errors.length > 0) { showFieldError(allergieInput, errors[0]); return false; }
+
+            const sanitizedAllergie = sanitizeAllergie(allergieValue);
+            try {
+                showLoading(true);
+                const res = await fetch(`http://localhost:8080/utilisateurs/${currentUser.id}/allergies`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ nom: sanitizedAllergie, description: "" })
+                });
+                if (!res.ok) throw new Error('Échec de la sauvegarde');
+                const created = await res.json(); // {id, nom, description}
+                userAllergies.push(created.nom);
+                allergyIdByName.set(created.nom.toLowerCase(), created.id);
+                createAllergieElement(created.nom, created.id);
+                allergieInput.value = '';
+                showFieldSuccess(allergieInput);
+                showSuccess(`Allergie "${created.nom}" ajoutée avec succès !`);
+                updateEmptyState();
+                return true;
+            } catch (e) {
+                console.error(e);
+                showError("Erreur lors de l'ajout de l'allergie.");
+                return false;
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function removeAllergie(allergieName, buttonElement) {
+            const listItem = buttonElement.closest('li');
+            const id = listItem?.dataset?.id || allergyIdByName.get(allergieName.toLowerCase());
+            listItem.classList.add('allergy-removing');
+
+            try {
+                if (id) {
+                    const res = await fetch(`http://localhost:8080/utilisateurs/${currentUser.id}/allergies/${id}`, {
+                        method: 'DELETE',
+                        credentials: 'include'
+                    });
+                    if (!res.ok) throw new Error('Échec suppression');
+                }
+                userAllergies = userAllergies.filter(a => a.toLowerCase() !== allergieName.toLowerCase());
+                allergyIdByName.delete(allergieName.toLowerCase());
+                listItem.remove();
+                updateEmptyState();
+                const displayName = allergieName.charAt(0).toUpperCase() + allergieName.slice(1);
+                showSuccess(`Allergie "${displayName}" supprimée avec succès !`);
+            } catch (e) {
+                console.error(e);
+                listItem.classList.remove('allergy-removing');
+                showError("Erreur lors de la suppression de l'allergie.");
+            }
+        }
+        window.removeAllergie = removeAllergie;
+
+        async function addAntecedent() {
+            const raw = antecedentInput.value.trim();
+            const errors = validateAntecedent(raw);
+            if (errors.length) { showFieldError(antecedentInput, errors[0]); return; }
+
+            const clean = sanitizeAntecedent(raw);
+            try {
+                showLoading(true);
+                const res = await fetch(`http://localhost:8080/utilisateurs/${currentUser.id}/antecedents`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ nom: clean, description: "", date_diagnostic: null })
+                });
+                if (!res.ok) throw new Error('Échec de la sauvegarde');
+                const created = await res.json(); // {id, nom, ...}
+                userAntecedents.push(created.nom);
+                antecedentIdByName.set(created.nom.toLowerCase(), created.id);
+                createAntecedentElement(created.nom, created.id);
+                antecedentInput.value = '';
+                showFieldSuccess(antecedentInput);
+                showSuccess(`Antécédent "${created.nom}" ajouté !`);
+                updateEmptyStateAnt();
+            } catch (e) {
+                console.error(e);
+                showError("Erreur lors de l'ajout de l'antécédent.");
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        async function removeAntecedent(name, btn) {
+            const li = btn.closest('li');
+            const id = li?.dataset?.id || antecedentIdByName.get(name.toLowerCase());
+            li.classList.add('antecedent-removing');
+
+            try {
+                if (id) {
+                    const res = await fetch(`http://localhost:8080/utilisateurs/${currentUser.id}/antecedents/${id}`, {
+                        method: 'DELETE',
+                        credentials: 'include'
+                    });
+                    if (!res.ok) throw new Error('Échec suppression');
+                }
+                userAntecedents = userAntecedents.filter(a => a.toLowerCase() !== name);
+                antecedentIdByName.delete(name.toLowerCase());
+                li.remove();
+                updateEmptyStateAnt();
+                showSuccess(`Antécédent "${name}" supprimé !`);
+            } catch (e) {
+                console.error(e);
+                li.classList.remove('antecedent-removing');
+                showError("Erreur lors de la suppression de l'antécédent.");
+            }
+        }
+        window.removeAntecedent = removeAntecedent;
+
+        // ===== Profil (auth + save profil) =====
+        function showFieldError(field, message) {
+            field.classList.add('error');
+            field.classList.remove('success');
+            setTimeout(() => { field.classList.remove('error'); }, 3000);
+            showError(message);
+        }
+        function showFieldSuccess(field) {
+            field.classList.add('success');
+            field.classList.remove('error');
+            setTimeout(() => { field.classList.remove('success'); }, 2000);
+        }
+
+        document.querySelectorAll('input[name="sexe"]').forEach((radio) => {
+            radio.addEventListener('change', () => {
+                if (radio.value === 'autre' && radio.checked) {
+                    sexeAutreContainer.style.display = 'block';
+                } else if ((radio.value === 'homme' || radio.value === 'femme') && radio.checked) {
+                    sexeAutreContainer.style.display = 'none';
+                    sexeAutreInput.value = '';
+                }
+            });
+        });
+
+        function createSparkles() { /* ... animations ... (inchangé) */ }
+        function createMoreSparkles() { /* ... animations ... (inchangé) */ }
+        function showFarewellAnimation() { /* ... animations ... (inchangé) */ }
+        function createHeartExplosion() {}
+
+        async function loadProfile() {
+            try {
+                const response = await fetch('http://localhost:8080/auth/me', { credentials: 'include' });
+                if (!response.ok) throw new Error('Non authentifié');
+                currentUser = await response.json();
+
+                document.getElementById('userEmail').textContent = currentUser.email;
+                document.getElementById('prenom').value = currentUser.prenom || '';
+                document.getElementById('nom').value = currentUser.nom || '';
+                document.getElementById('date_naissance').value = currentUser.date_naissance || '';
+                document.getElementById('numero_telephone').value = currentUser.numero_telephone || '';
+                document.getElementById('email').value = currentUser.email || '';
+                document.getElementById('mdp').value = '';
+                document.getElementById('conf-mdp').value = '';
+                
+                loadUserAvatar();
+
+                const val = (currentUser.sexe || "").trim().toLowerCase();
+                if (val === "homme" || val === "femme") {
+                    const r = document.querySelector(`input[name="sexe"][value="${val}"]`);
+                    if (r) r.checked = true;
+                    sexeAutreContainer.style.display = "none";
+                    sexeAutreInput.value = "";
+                } else if (val) {
+                    const r = document.querySelector(`input[name="sexe"][value="autre"]`);
+                    if (r) r.checked = true;
+                    sexeAutreContainer.style.display = "block";
+                    sexeAutreInput.value = currentUser.sexe;
+                } else {
+                    sexeAutreContainer.style.display = "none";
+                    sexeAutreInput.value = "";
+                }
+
+                // 🔄 Charger depuis l'API pour être sûr d'avoir ce qu'il y a en base
+                await loadUserAllergies();
+                await loadUserAntecedents();
+
+            } catch (error) {
+                console.error('Erreur chargement profil:', error);
+                window.location.href = '/connexion/connexion';
+            }
+        }
+
+        function loadUserAvatar() {
+            const userAvatar = currentUser.avatar || 'normal';
+            const avatarData = availableAvatars.find(avatar => avatar.id === userAvatar);
+            if (avatarData) {
+                document.getElementById('avatarImage').src = avatarData.src;
+                document.getElementById('avatarImage').alt = avatarData.name;
+            }
+        }
+
+        function initAvatarSelection() {
+            const avatarGrid = document.getElementById('avatarGrid');
+            avatarGrid.innerHTML = availableAvatars.map(avatar => `
+                <div class="avatar-option" data-avatar-id="${avatar.id}">
+                    <div class="avatar-option-container">
+                        <img src="${avatar.src}" alt="${avatar.name}" class="avatar-option-img">
+                    </div>
+                    <span class="avatar-option-name">${avatar.name}</span>
+                </div>
+            `).join('');
+            avatarGrid.querySelectorAll('.avatar-option').forEach(option => {
+                option.addEventListener('click', () => selectAvatar(option.dataset.avatarId));
+            });
+        }
+
+        function selectAvatar(avatarId) {
+            selectedAvatar = avatarId;
+            document.querySelectorAll('.avatar-option').forEach(option => option.classList.remove('selected'));
+            document.querySelector(`[data-avatar-id="${avatarId}"]`).classList.add('selected');
+            document.getElementById('saveAvatarBtn').disabled = false;
+        }
+
+        async function saveAvatar() {
+            if (!selectedAvatar) return;
+            try {
+                showLoading(true);
+                const response = await fetch(`http://localhost:8080/utilisateurs/${currentUser.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify({ avatar: selectedAvatar })
+                });
+                if (!response.ok) throw new Error('Erreur lors de la mise à jour de l\'avatar');
+                currentUser = await response.json();
+                loadUserAvatar();
+                closeAvatarModal();
+                showSuccess('Avatar mis à jour avec succès !');
+            } catch (error) {
+                console.error('Erreur sauvegarde avatar:', error);
+                showError('Erreur lors de la sauvegarde de l\'avatar.');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        function openAvatarModal() {
+            document.getElementById('avatarModal').style.display = 'flex';
+            const currentAvatarId = currentUser.avatar || 'normal';
+            selectAvatar(currentAvatarId);
+        }
+        function closeAvatarModal() {
+            document.getElementById('avatarModal').style.display = 'none';
+            selectedAvatar = null;
+            document.getElementById('saveAvatarBtn').disabled = true;
+        }
+        function openDeleteModal() { document.getElementById('deleteModal').style.display = 'flex'; }
+        function closeDeleteModal() { document.getElementById('deleteModal').style.display = 'none'; }
+
+        async function deleteAccount() {
+            // Demo: animation seulement
+            closeDeleteModal();
+            showFarewellAnimation();
+        }
+
+        function toggleEditMode() {
+            editMode = !editMode;
+            const inputs = document.querySelectorAll('.form-input');
+            const editToggle = document.getElementById('editToggle');
+            const saveBtn = document.getElementById('saveBtn');
+            
+            if (editMode) {
+                inputs.forEach(input => { if (input.id !== 'allergie' && input.id !== 'antecedent') input.disabled = false; });
+                const buttonText = editToggle.querySelector('.button-text');
+                if (buttonText) buttonText.textContent = 'Annuler';
+                editToggle.classList.add('cancel');
+                saveBtn.style.display = 'block';
+            } else {
+                inputs.forEach(input => { if (input.id !== 'allergie' && input.id !== 'antecedent') input.disabled = true; });
+                const buttonText = editToggle.querySelector('.button-text');
+                if (buttonText) buttonText.textContent = 'Modifier';
+                editToggle.classList.remove('cancel');
+                saveBtn.style.display = 'none';
+                if (currentUser) {
+                    document.getElementById('prenom').value = currentUser.prenom || '';
+                    document.getElementById('nom').value = currentUser.nom || '';
+                    document.getElementById('date_naissance').value = currentUser.date_naissance || '';
+                    document.getElementById('numero_telephone').value = currentUser.numero_telephone || '';
+                    document.getElementById('email').value = currentUser.email || '';
+                    document.getElementById('mdp').value = '';
+                    document.getElementById('conf-mdp').value = '';
+                }
+            }
+        }
+
+        async function saveProfile(e) {
+            e.preventDefault();
+            const $ = (id) => document.getElementById(id);
+
+            // MDP
+            const mot_de_passe = ($('mdp')?.value || '').trim();
+            const confMdp      = ($('conf-mdp')?.value || '').trim();
+            if (mot_de_passe || confMdp) {
+                if (mot_de_passe !== confMdp) { showError('Les mots de passe ne correspondent pas.'); return; }
+                if (mot_de_passe.length < 6)  { showError('Le mot de passe doit contenir au moins 6 caractères.'); return; }
+            }
+
+            // Email
+            const email = ($('email')?.value || '').trim();
+            const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            if (email && !emailRegex.test(email)) { showError('Veuillez saisir un email valide.'); return; }
+
+            // Sexe
+            let sexe = null;
+            const checked = document.querySelector('input[name="sexe"]:checked');
+            if (checked) {
+                if (checked.value === 'autre') {
+                    const autre = ($('sexe_autre')?.value || '').trim();
+                    sexe = autre || null;
+                } else {
+                    sexe = checked.value;
+                }
+            }
+
+            const updateData = {
+                nom:               ($('nom')?.value || '').trim(),
+                prenom:            ($('prenom')?.value || '').trim(),
+                date_naissance:    $('date_naissance')?.value || null,
+                numero_telephone:  ($('numero_telephone')?.value || '').trim() || null,
+                email,
+                sexe,
+                ...(mot_de_passe ? { mot_de_passe } : {}),
+            };
+
+            try {
+                showLoading(true);
+                const resp = await fetch(`http://localhost:8080/utilisateurs/${currentUser.id}`, {
+                    method: 'PUT',
+                    headers: { 'Content-Type': 'application/json' },
+                    credentials: 'include',
+                    body: JSON.stringify(updateData),
+                });
+
+                if (!resp.ok) {
+                    const err = await resp.json().catch(() => ({}));
+                    throw new Error(err.detail || err.message || 'Erreur lors de la mise à jour');
+                }
+
+                const data = await resp.json();
+                currentUser = data;
+                toggleEditMode();
+                showSuccess(data.password_changed ? 'Mot de passe mis à jour ✅' : 'Profil mis à jour avec succès !');
+                $('mdp').value = '';
+                $('conf-mdp').value = '';
+            } catch (err) {
+                console.error(err);
+                showError(err.message || 'Erreur lors de la sauvegarde. Veuillez réessayer.');
+            } finally {
+                showLoading(false);
+            }
+        }
+
+        // Déconnexion
+        async function logout() {
+            if (confirm('Êtes-vous sûr de vouloir vous déconnecter ?')) {
+                try {
+                    const response = await fetch('http://localhost:8080/auth/logout', {
+                        method: 'POST',
+                        credentials: 'include'
+                    });
+                    if (response.ok) window.location.href = '/connexion/connexion';
+                } catch (error) {
+                    console.error('Erreur déconnexion:', error);
+                }
+            }
+        }
+
+        // UI utils
+        function showError(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            const successDiv = document.getElementById('successMessage');
+            successDiv.style.display = 'none';
+            errorDiv.textContent = message;
+            errorDiv.style.display = 'block';
+            setTimeout(() => { errorDiv.style.display = 'none'; }, 5000);
+        }
+        function showSuccess(message) {
+            const errorDiv = document.getElementById('errorMessage');
+            const successDiv = document.getElementById('successMessage');
+            errorDiv.style.display = 'none';
+            successDiv.textContent = message;
+            successDiv.style.display = 'block';
+            setTimeout(() => { successDiv.style.display = 'none'; }, 5000);
+        }
+        function showLoading(loading) {
+            const formSection = document.querySelector('.form-section');
+            if (loading) formSection.classList.add('loading'); else formSection.classList.remove('loading');
+        }
+
+        // ===== EVENT LISTENERS =====
+        function initAllergiesEventListeners() {
+            addButton?.addEventListener('click', (event) => { event.preventDefault(); addAllergie(); });
+            allergieInput?.addEventListener('keypress', (event) => {
+                if (event.key === 'Enter') { event.preventDefault(); addAllergie(); }
+            });
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            loadProfile();
+            initAvatarSelection();
+            initAllergiesEventListeners();
+
+            // Avatars
+            document.getElementById('avatarEditBtn').addEventListener('click', openAvatarModal);
+            document.getElementById('closeAvatarModal').addEventListener('click', closeAvatarModal);
+            document.getElementById('saveAvatarBtn').addEventListener('click', saveAvatar);
+
+            // Profil
+            document.getElementById('editToggle').addEventListener('click', toggleEditMode);
+            document.getElementById('profileForm').addEventListener('submit', saveProfile);
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+
+            // Suppression compte (demo)
+            document.getElementById('supToggle').addEventListener('click', openDeleteModal);
+            document.getElementById('closeDeleteModal').addEventListener('click', closeDeleteModal);
+            document.getElementById('cancelDeleteBtn').addEventListener('click', closeDeleteModal);
+            document.getElementById('confirmDeleteBtn').addEventListener('click', deleteAccount);
+
+            // Fermer modaux en cliquant à côté
+            document.getElementById('avatarModal').addEventListener('click', (e) => { if (e.target.id === 'avatarModal') closeAvatarModal(); });
+            document.getElementById('deleteModal').addEventListener('click', (e) => { if (e.target.id === 'deleteModal') closeDeleteModal(); });
+
+            // Antécédents listeners
+            addAntecedentBtn?.addEventListener('click', e => { e.preventDefault(); addAntecedent(); });
+            antecedentInput?.addEventListener('keypress', e => { if (e.key === 'Enter') { e.preventDefault(); addAntecedent(); } });
+        });
+    </script>
+</body>
+</html>

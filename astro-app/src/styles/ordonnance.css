@@ -1,0 +1,117 @@
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  background: linear-gradient(135deg, #6db5a3 0%, #4a9d8a 50%, #2e7c67 100%);
+  color: #d7f6eb;
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  margin: 0;
+  padding: 0;
+  overflow-x: hidden;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+}
+
+main {
+  width: 90%;
+  position: absolute;
+  display: flex;
+  flex-grow: 1;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-start;
+  background: #ffffff;
+  color: #000;
+  padding: 5%;
+  margin-left: 5%;
+  margin-top: 2%;
+  border-radius: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+
+.carte {
+  background: #ffffff;
+  color: #000;
+  padding: 20px;
+  border-radius: 20px;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.carte-header h3 {
+  margin-bottom: 10px;
+  text-align: center;
+}
+.carte-header span {
+  display: block;
+  text-align: center;
+}
+.carte-header span {
+  color: #555;
+}
+
+.carte-middle {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+}
+
+.carte-middle h3 {
+  color: #333;
+}
+.medication-toggle .toggle-switch {
+  width: 50px;
+  height: 26px;
+  background: #ccc;
+  border-radius: 13px;
+  position: relative;
+  transition: background 0.3s ease;
+}
+
+.toggle-switch::before {
+  content: "";
+  position: absolute;
+  top: 2px;
+  left: 2px;
+  width: 22px;
+  height: 22px;
+  background: white;
+  border-radius: 50%;
+  transition: transform 0.3s ease;
+}
+
+.toggle-switch.active {
+  background: #4a9d8a;
+}
+
+.toggle-switch.active::before {
+  transform: translateX(24px);
+}
+
+.carte-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-evenly;
+  width: 100%;
+  padding: 10px 0;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
+  margin-top: 5%;
+}
+
+.img-carte-footer {
+  background: linear-gradient(135deg, #6db5a3 0%, #4a9d8a 50%, #2e7c67 100%);
+  border-radius: 20%;
+  box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+  width: 6%;
+  min-width: 80px;
+}
+
+.img-carte-footer img {
+  width: 100%;
+  object-fit: contain;
+  border-radius: 20px;
+}

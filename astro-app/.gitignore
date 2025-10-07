@@ -1,0 +1,54 @@
+# Fichiers de cache Python
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Environnement virtuel Python
+venv/
+env/
+.venv/
+
+# Fichiers de base de données SQLite
+db.sqlite3
+db.sqlite3-journal
+
+# Dossiers de build et de dépendances
+dist/
+.astro/
+node_modules/
+myenv/
+.env/
+
+# Fichiers de logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+
+# Fichiers d'environnement et secrets
+# Ne jamais versionner les clés d'API et autres secrets !
+.env
+.env.*
+!.env.example
+
+# Dossier contenant des services avec des clés (à ne pas versionner)
+/services/
+
+# Fichiers spécifiques à l'OS
+.DS_Store
+Thumbs.db
+
+# Dossiers de configuration d'IDE
+.idea/
+.vscode/
+
+/services/__pycache__/
+/src/astro/__pycache__/
+/src/models/__pycache__/
+
+# Playwright
+/test-results/
+/playwright-report/
+/blob-report/
+/playwright/.cache/

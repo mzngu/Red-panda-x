@@ -1,0 +1,61 @@
+---
+import Footer from '../../components/Footer.astro';
+import '../../styles/conversation.css';
+import '../../styles/components/footer.css';
+import ConversationDropDown from '../../components/ConversationDropDown.tsx';
+import PrescriptionDropDown from '../../components/PrescriptionDropDown.tsx';
+
+---
+
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chat Interface</title>
+    <script src="/scripts/conversation-utils.js" is:inline></script>
+</head>
+<body>
+    <div class="container">
+        <header class="header">
+            <div class="age-user" id="dynamicAge"></div>
+        </header>
+
+        <div class="greeting-section">
+             <div class="greeting" id="dynamicGreeting">Bonjour 'username'</div>
+            <div class="search-container">
+                <div class="search-input-wrapper">
+                    <span class="search-input-icon">🔍</span>
+                    <input 
+                        type="text" 
+                        class="search-input" 
+                        placeholder="Rechercher dans tes conversations..."
+                        id="conversationSearch"
+                    />
+                    <button class="clear-search" id="clearSearch" style="display: none;">✕</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="conversations-section">
+            <div class="conversations-header">
+    <h2 class="conversations-title">Tes conversations</h2>
+</div>
+        </div>
+
+        <div class="prescriptions-wrap">
+        <div class="conversations-header">
+            <h2 class="conversations-title">Tes ordonnances</h2>
+            <PrescriptionDropDown client:load />
+        </div>
+        <div id="prescriptionsGrid" class="prescriptions-grid"></div>
+        </div>
+
+        <Footer />
+</div>
+
+    <script src="/scripts/prescriptions-page.js" is:inline></script>
+    <script src="/scripts/conversation-page.js" is:inline></script>
+
+</body>
+</html>

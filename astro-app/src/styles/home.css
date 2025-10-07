@@ -1,0 +1,518 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: linear-gradient(135deg, #6db5a3 0%, #4a9d8a 50%, #2e7c67 100%);
+    color: #d7f6eb;
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+    height: 100vh;
+    margin: 0;
+    padding: 0;
+    overflow: hidden; 
+}
+
+.container {
+    height: 100%;            
+    display: flex;
+    align-items: center;    
+    justify-content: center;  /* centre horizontal */
+    padding: 40px 20px;
+    position: relative;
+    min-height: 0;
+    padding-bottom: 5%;
+}
+
+/* Trucs flottants en arrière-plan */
+.container::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-image: 
+        radial-gradient(circle at 20% 80%, rgba(120, 255, 255, 0.1) 0%, transparent 50%),
+        radial-gradient(circle at 80% 20%, rgba(255, 255, 255, 0.05) 0%, transparent 50%),
+        radial-gradient(circle at 40% 40%, rgba(120, 255, 255, 0.08) 0%, transparent 50%);
+    animation: float 20s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes float {
+    0%, 100% { transform: translateY(0px) rotate(0deg); }
+    50% { transform: translateY(-20px) rotate(180deg); }
+}
+
+
+
+
+
+.greeting-section {
+    background: linear-gradient(145deg, 
+        rgba(255, 255, 255, 0.25) 0%, 
+        rgba(255, 255, 255, 0.1) 100%);
+    backdrop-filter: blur(20px);
+    border: 2px solid rgba(255, 255, 255, 0.3);
+    text-align: center;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    border-radius: 32px;
+    padding: 60px 40px;
+    margin-bottom: 70px;
+    box-shadow: 
+        0 25px 50px rgba(0, 0, 0, 0.15),
+        inset 0 1px 0 rgba(255, 255, 255, 0.4);
+    max-width: 420px;
+    width: 100%;
+    position: relative;
+    overflow: visible;
+    animation: cardGlow 4s ease-in-out infinite alternate;
+    min-height: 0;    
+}
+
+
+@keyframes cardGlow {
+    0% { box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.4); }
+    100% { box-shadow: 0 25px 50px rgba(0, 0, 0, 0.15), inset 0 1px 0 rgba(255, 255, 255, 0.4), 0 0 30px rgba(255, 255, 255, 0.1); }
+}
+
+/* Effet sur la carte */
+.greeting-section::before {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(
+        45deg,
+        transparent,
+        rgba(255, 255, 255, 0.1),
+        transparent
+    );
+    animation: shimmer 6s ease-in-out infinite;
+    pointer-events: none;
+}
+
+@keyframes shimmer {
+    0% { transform: translateX(-100%) translateY(-100%) rotate(45deg); }
+    100% { transform: translateX(100%) translateY(100%) rotate(45deg); }
+}
+
+.main-card {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    z-index: 2;
+    position: relative;
+}
+
+.main-card div {
+    font-weight: 800;
+    color: #1a4037;
+    letter-spacing: 2px;
+    text-transform: uppercase;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+}
+
+@keyframes textPulse {
+    0%, 100% { transform: scale(1); }
+    50% { transform: scale(1.05); }
+}
+
+#curveCanvas {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    opacity: 0.7;
+}
+
+.bottom-nav {
+    margin-top: auto;
+    position: fixed;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    z-index: 100;
+    backdrop-filter: blur(10px);
+    background: rgba(255, 255, 255, 0.1);
+    border-top: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+    .container {
+        padding: 20px 15px;
+    }
+    
+    .sorrel-pic {
+        width: 280px;
+        height: 280px;
+        margin-bottom: 20px;
+    }
+    
+    .greeting-section {
+        padding: 40px 25px;
+        max-width: 340px;
+        border-radius: 24px;
+    }
+    
+    .main-card div {
+        font-size: 22px;
+        letter-spacing: 1px;
+    }
+    
+    .button {
+        padding: 15px 30px;
+        font-size: 16px;
+        min-width: 180px;
+    }
+}
+
+@media (max-width: 480px) {
+    .sorrel-pic {
+        width: 220px;
+        height: 220px;
+    }
+    
+    .greeting-section {
+        padding: 30px 20px;
+        max-width: 300px;
+    }
+    
+    .main-card div {
+        font-size: 20px;
+    }
+    
+    .button {
+        padding: 12px 25px;
+        font-size: 15px;
+        min-width: 160px;
+    }
+}
+
+/* Ajoutez ces styles à votre fichier ../../styles/home.css existant */
+
+.time-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+    margin: 10px 0;
+}
+
+.time-section p {
+    font-size: 18px;
+    font-weight: 600;
+    color: #1a4037;
+    margin: 0;
+    text-decoration: underline;
+    text-decoration-color: rgba(26, 64, 55, 0.5);
+    text-underline-offset: 4px;
+}
+
+/* Ajustements pour les sections de temps sur mobile */
+@media (max-width: 768px) {
+    .time-section p {
+        font-size: 16px;
+    }
+}
+
+@media (max-width: 480px) {
+    .time-section p {
+        font-size: 15px;
+    }
+    
+    .time-section {
+        gap: 12px;
+        margin: 8px 0;
+    }
+}
+
+
+.sorrel-pic {
+    width: 200px;
+    height: 200px;
+    object-fit: contain;
+    margin-bottom: 20px;
+    z-index: 10;
+    position: relative;
+    animation: bounce 3s ease-in-out infinite;
+    filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.2));
+}
+
+/* Remplacez les styles des médicaments dans votre home.css par ceci : */
+
+/* Nouveau header fixe pour le titre */
+.main-card-header {
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    padding-bottom: 20px;
+}
+
+.main-card-header div {
+    font-size: 20px; /* Réduit de 24px */
+    font-weight: 800;
+    color: #1a4037;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+    text-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+    /* Supprimé l'animation textPulse */
+}
+
+/* Zone scrollable pour les médicaments */
+.main-card {
+    width: 100%;
+    max-width: 420px;
+    height: 300px;            /* taille fixe visible (restera comme au début) */
+    overflow-y: auto;         /* scroll interne seulement */
+    min-height: 0;            /* indispensable en contexte flex */
+    -webkit-overflow-scrolling: touch; /* inertie iOS */
+    scrollbar-width: thin;
+    scrollbar-color: rgba(26, 64, 55, 0.3) transparent;
+}
+
+.main-card::-webkit-scrollbar {
+    width: 6px;
+}
+
+.main-card::-webkit-scrollbar { width: 6px; }
+.main-card::-webkit-scrollbar-track {
+  background: rgba(255, 255, 255, 0.1);
+  border-radius: 3px;
+}
+.main-card::-webkit-scrollbar-thumb {
+  background: rgba(26, 64, 55, 0.3);
+  border-radius: 3px;
+}
+.main-card::-webkit-scrollbar-thumb:hover {
+  background: rgba(26, 64, 55, 0.5);
+}
+
+
+.main-card::-webkit-scrollbar-thumb:hover {
+    background: rgba(26, 64, 55, 0.5);
+}
+
+.time-section {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+    margin: 20px 0;
+    padding: 0 10px;
+}
+
+.time-section p {
+    font-size: 16px; /* Réduit de 18px */
+    font-weight: 600;
+    color: #1a4037;
+    margin: 0;
+    text-decoration: underline;
+    text-decoration-color: rgba(26, 64, 55, 0.5);
+    text-underline-offset: 4px;
+    align-self: flex-start;
+}
+
+/* Style des éléments médicaments - ANIMATIONS RÉDUITES */
+.medication-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    width: 100%;
+    background: rgba(255, 255, 255, 0.9);
+    border-radius: 16px;
+    padding: 15px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+    transition: all 0.2s ease; /* Réduit de 0.3s */
+}
+
+.medication-item:hover {
+    transform: translateY(-1px); /* Réduit de -2px */
+    box-shadow: 0 5px 15px rgba(0, 0, 0, 0.12); /* Réduit l'effet */
+}
+
+.medication-icon {
+    width: 45px; /* Réduit de 50px */
+    height: 45px; /* Réduit de 50px */
+    background: linear-gradient(135deg, #6db5a3, #4a9d8a);
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px; /* Réduit de 24px */
+    flex-shrink: 0;
+}
+
+.medication-info {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.medication-name {
+    font-size: 14px; /* Réduit de 16px */
+    font-weight: 600;
+    color: #1a4037;
+}
+
+.medication-dose {
+    font-size: 12px; /* Réduit de 14px */
+    color: #6db5a3;
+    font-weight: 500;
+}
+
+.medication-toggle {
+    flex-shrink: 0;
+}
+
+.switch {
+  position: relative;
+  display: inline-block;
+  width: 50px;
+  height: 28px;
+}
+
+.switch input {
+    opacity: 0;
+    width: 0;
+    height: 0;
+}
+
+.slider {
+    position: absolute;
+    cursor: pointer;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background-color: #ccc;
+    border-radius: 28px;
+    transition: .2s;
+}
+
+.slider::before {
+  content: "✕";
+  position: absolute;
+  height: 22px; width: 22px;
+  left: 3px; top: 3px;
+  background-color: #888;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  color: white;
+  font-size: 14px;
+  transition: .2s;
+}
+.switch input:checked + .slider {
+  background-color: #22c55e;
+}
+.switch input:checked + .slider::before {
+  transform: translateX(22px);
+  background-color: #16a34a;
+  content: "✓";
+}
+
+
+/* Ajustements mobiles */
+@media (max-width: 768px) {
+    .main-card-header div {
+        font-size: 18px;
+    }
+    
+    .main-card {
+        max-height: 250px;
+    }
+    
+    .time-section p {
+        font-size: 14px;
+    }
+    
+    .medication-name {
+        font-size: 13px;
+    }
+    
+    .medication-dose {
+        font-size: 11px;
+    }
+    
+    .medication-icon {
+        width: 40px;
+        height: 40px;
+        font-size: 18px;
+    }
+}
+
+@media (max-width: 480px) {
+    .main-card-header div {
+        font-size: 16px;
+    }
+    
+    .main-card {
+        max-height: 200px;
+    }
+    
+    .time-section p {
+        font-size: 13px;
+    }
+    
+    .medication-item {
+        padding: 12px;
+        gap: 12px;
+    }
+    
+    .medication-icon {
+        width: 35px;
+        height: 35px;
+        font-size: 16px;
+    }
+    
+    .medication-name {
+        font-size: 12px;
+    }
+    
+    .medication-dose {
+        font-size: 10px;
+    }
+    
+    .switch { 
+        width: 45px; height: 24px; 
+    }
+
+    .slider::before { 
+        height: 20px; width: 20px; font-size: 12px; 
+    }
+
+    .switch input:checked + .slider::before { 
+        transform: translateX(20px); 
+    }
+}
+
+/* style pop up profil incomplet */
+
+.dp-backdrop {
+  position: fixed; inset: 0; background: rgba(0,0,0,.5);
+  display: flex; align-items: center; justify-content: center;
+  z-index: 9999;
+}
+.dp-modal {
+  width: min(520px, 92vw); background: #fff; border-radius: 16px;
+  padding: 24px; box-shadow: 0 10px 30px rgba(0,0,0,.2);
+  font-family: system-ui, sans-serif;
+}
+.dp-modal h2 { margin: 0 0 8px; font-size: 20px; color:#10b981 }
+.dp-actions { margin-top: 16px; display: flex; gap: 8px; }
+.dp-btn {
+  border: none; border-radius: 10px; padding: 10px 14px; cursor: pointer; font-weight: 600;
+}
+.dp-btn-primary { color: #fff; background: linear-gradient(135deg,#10b981,#059669); }
+.dp-btn-ghost { background: #10b981; }
+.dp-countdown { opacity: .7; font-size: 14px; margin-top: 8px; color: #10b981;}
+.dp-modal p { color: #059669}
